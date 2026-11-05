@@ -97,8 +97,12 @@ export function RedeemStation() {
   const email = parsed?.ok ? maskEmail(parsed.email) : "";
 
   return (
-    <div className="grid gap-6">
-      <form className="grid gap-4" onSubmit={onVerify}>
+    <div className="grid gap-4">
+      <form className="grid gap-3" onSubmit={onVerify}>
+        <div className="step-head">
+          <span className="step-num">1</span>
+          <h2 className="text-lg font-semibold">核验卡密</h2>
+        </div>
         <label className="grid gap-2 text-sm" htmlFor="cdk">
           卡密
           <input
@@ -120,7 +124,7 @@ export function RedeemStation() {
             {preview.ready ? "，本店可以办理。" : "。这个通道尚未开放，核验后不会进入提交。"}
           </p>
         ) : null}
-        <button className="gold-button w-fit" type="submit" disabled={pending !== null || cdk.trim().length < 8}>
+        <button className="btn-primary w-fit" type="submit" disabled={pending !== null || cdk.trim().length < 8}>
           {pending === "verify" ? "核验中" : "核验卡密"}
         </button>
       </form>
@@ -131,24 +135,22 @@ export function RedeemStation() {
 
       {verify?.status === "valid" && !verify.ready ? (
         <div className="alert">
-          <p className="serif text-lg">{verify.tierLabel}</p>
-          <p className="mt-2 text-sm">
-            这张卡可以识别，但 Claude 与 Team 还没有在本店开放。请不要在这里重复提交，需要办理时联系店主。
-          </p>
+          <p className="font-semibold">{verify.tierLabel}</p>
+          <p className="mt-2 text-sm">这张卡可以识别。Claude 与 Team 还没有开通，请联系店主办理，不必在这里重复提交。</p>
         </div>
       ) : null}
 
       {verify?.ready ? (
-        <form className="grid gap-4" onSubmit={onRedeem}>
-          <div>
-            <p className="kicker">Account</p>
-            <h2 className="display mt-2 text-2xl">填写{verify.product === "grok" ? "Grok" : "ChatGPT"}登录信息</h2>
-            <ol className="lede mt-3 list-decimal space-y-1 pl-5 text-sm">
-              {steps.map((step) => (
-                <li key={step}>{step}</li>
-              ))}
-            </ol>
+        <form className="grid gap-3" onSubmit={onRedeem}>
+          <div className="step-head">
+            <span className="step-num">2</span>
+            <h2 className="text-lg font-semibold">填写{verify.product === "grok" ? "Grok" : "ChatGPT"}登录信息</h2>
           </div>
+          <ol className="lede list-decimal space-y-1 pl-5 text-sm">
+            {steps.map((step) => (
+              <li key={step}>{step}</li>
+            ))}
+          </ol>
           <label className="grid gap-2 text-sm" htmlFor="credential">
             登录信息
             <textarea
@@ -161,27 +163,18 @@ export function RedeemStation() {
               onChange={(event) => setCredential(event.target.value)}
             />
           </label>
-          {parsed && !parsed.ok ? <p className="text-sm text-[#6d2e24]">{parsed.message}</p> : null}
+          {parsed && !parsed.ok ? <p className="text-sm text-[var(--danger)]">{parsed.message}</p> : null}
           {parsed?.ok ? (
-            <p className="text-sm text-[#245238]">
+            <p className="text-sm text-[#047857]">
               {parsed.detail}
               {email ? ` · 账号 ${email}` : ""}
             </p>
           ) : null}
           <label className="flex items-start gap-3 text-sm leading-6">
-            <input
-              type="checkbox"
-              className="mt-1"
-              checked={consent}
-              onChange={(event) => setConsent(event.target.checked)}
-            />
+            <input type="checkbox" className="mt-1" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
             我确认这是我本人的账号，并同意用这张卡为它兑换。
           </label>
-          <button
-            className="gold-button w-fit"
-            type="submit"
-            disabled={pending !== null || !consent || !parsed?.ok}
-          >
+          <button className="btn-primary w-fit" type="submit" disabled={pending !== null || !consent || !parsed?.ok}>
             {pending === "redeem" ? "提交中" : "确认兑换"}
           </button>
         </form>

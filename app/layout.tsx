@@ -5,12 +5,14 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Gigi礼品店",
-    template: "%s · Gigi礼品店",
+    default: "Gigi Ai",
+    template: "%s · Gigi Ai",
   },
-  description: "珍珠白与浅金的礼品卡兑换台，办理 ChatGPT、Grok 与 Codex。Claude 与 Team 尚未开放。",
+  description: "Gigi Ai 礼品卡兑换台，办理 ChatGPT、Grok 与 Codex。Claude 与 Team 暂未开通。",
   icons: { icon: "/favicon.svg" },
 };
+
+const themeBoot = `try{if(localStorage.getItem("gigi-theme")==="dark")document.documentElement.dataset.theme="dark"}catch(e){}`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
@@ -18,17 +20,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Noto+Serif+SC:wght@500;600;700&display=swap"
-          rel="stylesheet"
-        />
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+        <script dangerouslySetInnerHTML={{ __html: themeBoot }} />
       </head>
       <body>
         <a className="sr-only focus:not-sr-only" href="#content">
           跳到内容
         </a>
         <SiteHeader />
-        <main id="content" className="mx-auto min-h-[70vh] max-w-6xl px-5 py-10">
+        <main id="content" className="shell">
           {children}
         </main>
         <SiteFooter />

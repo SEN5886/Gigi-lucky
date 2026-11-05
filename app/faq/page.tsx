@@ -31,27 +31,20 @@ const ITEMS = [
     q: "登录信息和密钥会保存吗？",
     a: "合作方密钥只在服务端使用。登录会话只在提交当时转发给兑换服务，不写入卡密档案。档案里只保留卡密与订单号的对应关系。",
   },
-  {
-    q: "这里有抽奖吗？",
-    a: "没有。本店不提供抽奖、随机赠送或转盘。一张卡对应一笔订单。",
-  },
 ];
 
 export default function FaqPage() {
   return (
-    <div className="mx-auto grid max-w-3xl gap-6">
-      <header>
-        <p className="kicker">FAQ</p>
-        <h1 className="display mt-3 text-4xl">兑换问答</h1>
-        <p className="lede mt-3">办理前先看这几件事。遇到未完成的订单，先查询，不要换一张卡重复提交。</p>
+    <div className="mx-auto grid max-w-3xl gap-4">
+      <header className="card card-pad">
+        <h1 className="text-3xl font-bold">兑换问答</h1>
+        <p className="lede mt-2 text-sm">办理前先看这几件事。订单还没结束时，先查询原来的卡密。</p>
       </header>
-      <div className="grid gap-4">
+      <div className="faq-list">
         {ITEMS.map((item) => (
-          <article key={item.q} className="panel">
-            <div className="panel-body">
-              <h2 className="display text-2xl">{item.q}</h2>
-              <p className="lede mt-3 text-sm">{item.a}</p>
-            </div>
+          <article key={item.q} className="card card-pad">
+            <h2 className="text-lg font-semibold">{item.q}</h2>
+            <p className="lede mt-2 text-sm">{item.a}</p>
           </article>
         ))}
       </div>

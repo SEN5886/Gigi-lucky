@@ -32,8 +32,7 @@ export function CdkQuery({ title = "查询卡密" }: { title?: string }) {
   return (
     <form className="grid gap-4" onSubmit={onSubmit}>
       <div>
-        <p className="kicker">Query</p>
-        <h2 className="display mt-2 text-2xl">{title}</h2>
+        <h2 className="text-xl font-bold">{title}</h2>
         <p className="lede mt-2 text-sm">输入原来的卡密。若这笔兑换留下了订单号，可以直接继续查看进度。</p>
       </div>
       <label className="grid gap-2 text-sm">
@@ -47,7 +46,7 @@ export function CdkQuery({ title = "查询卡密" }: { title?: string }) {
           onChange={(event) => setCdk(event.target.value)}
         />
       </label>
-      <button className="ghost-button w-fit" type="submit" disabled={pending || cdk.trim().length < 8}>
+      <button className="btn-ghost w-fit" type="submit" disabled={pending || cdk.trim().length < 8}>
         {pending ? "查询中" : "查询状态"}
       </button>
       {message ? <p className="alert bad">{message}</p> : null}
@@ -59,7 +58,7 @@ export function CdkQuery({ title = "查询卡密" }: { title?: string }) {
           {status.note ? <p className="mt-1 text-sm">{status.note}</p> : null}
           {status.email ? <p className="mt-1 text-sm">账号 {status.email}</p> : null}
           {orderId ? (
-            <Link className="mt-3 inline-flex text-gold" href={`/order/${orderId}`}>
+            <Link className="mt-3 inline-flex font-medium text-primary" href={`/order/${orderId}`}>
               查看订单 {orderId}
             </Link>
           ) : (

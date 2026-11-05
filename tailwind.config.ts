@@ -5,12 +5,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        pearl: "#fbf7f0",
-        ink: "#241c14",
-        gold: "#8d6b32",
+        canvas: "#eaeff5",
+        ink: "#0f172a",
+        primary: "#2563eb",
       },
       boxShadow: {
-        card: "0 24px 60px rgba(80, 52, 18, 0.06)",
+        card: "0 10px 30px rgba(15, 23, 42, 0.06)",
       },
     },
   },

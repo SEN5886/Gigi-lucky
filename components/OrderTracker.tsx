@@ -183,11 +183,11 @@ export function OrderTracker({ orderId }: { orderId: string }) {
     <div className="grid gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="kicker">Order</p>
-          <h1 className="display mt-2 text-3xl">{order?.statusLabel ?? "读取订单"}</h1>
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">订单</p>
+          <h1 className="mt-2 text-3xl font-bold">{order?.statusLabel ?? "读取订单"}</h1>
         </div>
         <button
-          className="ghost-button"
+          className="btn-ghost"
           type="button"
           onClick={async () => {
             try {
@@ -243,11 +243,11 @@ export function OrderTracker({ orderId }: { orderId: string }) {
           </p>
           <div className="flex flex-wrap gap-3">
             {order.customerAction?.type === "stripe_next_action" ? (
-              <button className="gold-button" type="button" disabled={busy} onClick={retryBank}>
+              <button className="btn-primary" type="button" disabled={busy} onClick={retryBank}>
                 {busy ? "验证中" : "继续银行验证"}
               </button>
             ) : null}
-            <button className="ghost-button" type="button" disabled={busy} onClick={() => void recheck()}>
+            <button className="btn-ghost" type="button" disabled={busy} onClick={() => void recheck()}>
               重新核查
             </button>
           </div>

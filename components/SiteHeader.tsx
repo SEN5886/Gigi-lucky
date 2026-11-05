@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Logo } from "@/components/Logo";
 
 const LINKS = [
   { href: "/", label: "首页" },
@@ -12,23 +14,54 @@ const LINKS = [
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    setDark(document.documentElement.dataset.theme === "dark");
+  }, []);
+
+  function toggleTheme() {
+    const next = !dark;
+    setDark(next);
+    if (next) document.documentElement.dataset.theme = "dark";
+    else delete document.documentElement.dataset.theme;
+    try {
+      localStorage.setItem("gigi-theme", next ? "dark" : "light");
+    } catch {
+      /* 主题只影响这一台浏览器的显示。 */
+    }
+  }
+
   return (
-    <header className="site-header">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 py-4">
-        <Link href="/" className="flex items-center gap-3">
-          <span className="seal compact" aria-hidden>
-            礼
-          </span>
-          <span>
-            <span className="latin block text-xl leading-none text-gold">Gigi</span>
-            <span className="serif block text-sm tracking-[0.22em]">礼品店</span>
-          </span>
-        </Link>
-        <nav className="flex items-center gap-5" aria-label="主导航">
+    <header>
+      <div className="topbar">ChatGPT、Grok、Codex 自助兑换已开放 · Claude 与 Team 暂未开通</div>
+      <div className="nav-float">
+        <Logo />
+        <div className="nav-tools">
+          <button className="icon-btn" type="button" onClick={toggleTheme} aria-label={dark ? "切换浅色" : "切换深色"}>
+            {dark ? "浅" : "深"}
+          </button>
+          <button
+            className="menu-btn"
+            type="button"
+            aria-expanded={open}
+            aria-controls="site-nav"
+            onClick={() => setOpen((value) => !value)}
+          >
+            <i className="burger" />
+            <span className="sr-only">{open ? "关闭菜单" : "打开菜单"}</span>
+          </button>
+        </div>
+        <nav id="site-nav" className={open ? "nav-links open" : "nav-links"} aria-label="主导航">
           {LINKS.map((link) => {
             const active = link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
             return (
-              <Link key={link.href} href={link.href} className="nav-link" data-active={active}>
+              <Link key={link.href} href={link.href} className="pill" data-active={active}>
                 {link.label}
               </Link>
             );
