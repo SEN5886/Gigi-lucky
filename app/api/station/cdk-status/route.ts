@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
-    limited(request, 20);
+    limited(request, 20, "redeem");
     const body = (await readJson(request, 8_000)) as { cdk?: unknown };
     const cdk = assertCdk(body.cdk);
     const known = await findBinding(cdk);

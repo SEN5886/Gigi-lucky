@@ -19,6 +19,11 @@ cp .env.example .env.local
 | `XIAOJIU_API_KEY` | 合作方密钥。请求使用 `Authorization: Bearer`。不要加 `NEXT_PUBLIC_` 前缀。 |
 | `XIAOJIU_API_BASE_URL` | 可选。默认 `https://982xj.xyz/api/partner/v1/xiaojiu`。 |
 | `ORDER_STORE_PATH` | 可选。卡密到订单号的档案，默认 `.data/cdk-orders.json`。 |
+| `PAYMENT_MODE` | `mock`（默认）本地完成订单；`live` 时支付接口返回尚未接入。 |
+| `AUTH_MODE` | `stub`（默认）登录只返回即将接入。`dev` 仅在非生产环境建立模拟会话。 |
+| `MALL_DATA_PATH` | 可选。商城会话、购物车和订单，默认 `.data/mall.json`。 |
+| `PAYMENT_WEBHOOK_SECRET` | 可选，至少 16 位。不配置时回调一律拒绝。 |
+| `COOKIE_SECURE` | 可选。仅在 HTTPS 后设为 `true`。 |
 
 ```bash
 npm install
@@ -31,12 +36,31 @@ npm run dev
 
 ## 页面
 
-- `/` 首页：开放的卡种与兑换步骤
+- `/` 首页：进入商店或兑换台
+- `/store` 商品目录，可按 ChatGPT / Grok / Claude / Codex / 其他 筛选
+- `/store/[slug]` 商品详情
+- `/cart` 购物车：改数量、移除
+- `/checkout` 客人也可结算；`PAYMENT_MODE=mock` 时本地完成订单
+- `/checkout/success` 订单回执，只对下单的浏览器或同一登录用户可见
+- `/account/orders` 登录用户的订单列表壳，以及本机订单
+- `/login`、`/register` 登录与注册界面，调用尚未接入的账户接口
 - `/redeem` 兑换：核验卡密、填写登录信息、提交
-- `/order` 用卡密找回订单
-- `/order/[id]` 订单进度，大约每 5 秒核对一次
-- `/faq` 问答
+- `/order` 用卡密找回兑换进度
+- `/order/[id]` 兑换订单进度，大约每 5 秒核对一次
+- `/faq` 问答，`/privacy` 隐私，`/support` 售后
 - 未知地址使用中文 404
+
+目录数据在 `data/catalog.json`。单价和库存以这份文件为准，浏览器不能改价。
+
+## 账户与支付接口
+
+账户与支付都先留接口，不接真实服务商。
+
+- `AuthProvider`：`login`、`register`、`requestMagicLink`
+- `PaymentProvider`：`createIntent`、`confirm`
+- 路由见 `docs/SECURITY.md`
+
+下一步支付接入的顺序是 Stripe、支付宝、微信支付。实现对应的 `PaymentProvider`，密钥只放服务端。不要在模拟支付已开启时向顾客展示「已真实扣款」。
 
 ## 与合作方的对应关系
 
@@ -66,9 +90,6 @@ Claude、Team 以及无法识别的卡密会被拒绝提交。
 
 ## 安全
 
-- 密钥只出现在服务端环境变量中
-- 登录会话不落盘、不写进日志
-- 页面不接收银行卡号
-- 接口有基本频率限制，订单号与卡密都做了格式校验
+完整说明在 [docs/SECURITY.md](docs/SECURITY.md)。当前包括：安全响应头、同源与 CSRF 双提交、分接口限流、zod 校验、订单归属检查、回调密钥，以及兑换会话不落盘。
 
-生产环境请把 `ORDER_STORE_PATH` 放在持久磁盘上。多实例部署时需要换成共享存储，否则各实例看到的对应关系会不一致。
+生产环境请把 `ORDER_STORE_PATH` 和 `MALL_DATA_PATH` 放在持久磁盘上，并在 HTTPS 后设置 `COOKIE_SECURE=true`。多实例部署时需要换成共享存储。

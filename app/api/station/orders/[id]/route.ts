@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    limited(request, 120);
+    limited(request, 120, "redeem");
     const { id } = await context.params;
     const orderId = assertOrderId(id);
     const raw = await getOrder(orderId);

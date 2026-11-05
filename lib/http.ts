@@ -11,11 +11,12 @@ export function clientIp(request: Request): string {
   return request.headers.get("x-real-ip")?.slice(0, 64) || "local";
 }
 
-export function rateLimit(ip: string, limit = 30, windowMs = 60_000): boolean {
+export function rateLimit(ip: string, limit = 30, windowMs = 60_000, scope = "global"): boolean {
   const now = Date.now();
-  const bucket = buckets.get(ip);
+  const key = `${scope}:${ip}`;
+  const bucket = buckets.get(key);
   if (!bucket || now > bucket.reset) {
-    buckets.set(ip, { count: 1, reset: now + windowMs });
+    buckets.set(key, { count: 1, reset: now + windowMs });
     return true;
   }
   if (bucket.count >= limit) return false;
@@ -31,11 +32,13 @@ export function json(data: unknown, status = 200) {
 }
 
 export function jsonError(error: unknown) {
-  if (error instanceof PartnerError) {
-    const status = error.status >= 400 && error.status < 600 ? error.status : 502;
-    return json({ code: error.code, message: error.message }, status);
+  if (error instanceof Error && "status" in error && "code" in error) {
+    const status = Number((error as { status: number }).status);
+    const code = String((error as { code: string }).code);
+    const safe = status >= 400 && status < 600 ? status : 500;
+    return json({ code, message: error.message }, safe);
   }
-  console.error("station request failed");
+  console.error("request failed");
   return json({ code: "INTERNAL", message: "店铺暂时无法处理这个请求。" }, 500);
 }
 
@@ -71,8 +74,8 @@ export function assertOrderId(value: string): string {
   return id;
 }
 
-export function limited(request: Request, limit = 30) {
-  if (!rateLimit(clientIp(request), limit)) {
+export function limited(request: Request, limit = 30, scope = "global") {
+  if (!rateLimit(clientIp(request), limit, 60_000, scope)) {
     throw new PartnerError(429, "RATE_LIMITED", "操作太频繁，请稍后再试。");
   }
 }

@@ -16,10 +16,30 @@ async function parse<T>(response: Response): Promise<T> {
   return payload as T;
 }
 
+function readCookie(name: string): string {
+  if (typeof document === "undefined") return "";
+  const prefix = `${name}=`;
+  const found = document.cookie.split("; ").find((part) => part.startsWith(prefix));
+  return found ? decodeURIComponent(found.slice(prefix.length)) : "";
+}
+
+async function csrfToken(): Promise<string> {
+  let token = readCookie("gigi_csrf");
+  if (token) return token;
+  await fetch("/api/mall/session", { cache: "no-store", headers: { Accept: "application/json" } });
+  token = readCookie("gigi_csrf");
+  if (!token) throw new ClientError(403, "页面会话没有建立，请刷新后再试。");
+  return token;
+}
+
 export async function postJson<T>(url: string, body?: unknown): Promise<T> {
   const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "x-csrf-token": await csrfToken(),
+    },
     body: JSON.stringify(body ?? {}),
     cache: "no-store",
   });

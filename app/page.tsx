@@ -21,20 +21,20 @@ export default function HomePage() {
             </span>
           </div>
           <h2>Gigi Ai</h2>
-          <p className="lede mt-2 text-sm">自助兑换礼品卡。一张卡对应一笔可以回来查看的订单。</p>
+          <p className="lede mt-2 text-sm">先在商店选购，或在兑换台核销已有卡密。一张订单对应一次清楚的结果。</p>
           <div className="actions mt-4 justify-center">
-            <Link className="btn-primary" href="/redeem">
-              去兑换
+            <Link className="btn-primary" href="/store">
+              进入商店
             </Link>
-            <Link className="btn-ghost" href="/faq">
-              常见问题
+            <Link className="btn-ghost" href="/redeem">
+              去兑换
             </Link>
           </div>
         </aside>
         <div className="card card-pad">
-          <h1 className="text-[28px] font-bold leading-tight sm:text-4xl">自助兑换礼品卡，一站完成核验</h1>
+          <h1 className="text-[28px] font-bold leading-tight sm:text-4xl">选购数字商品，或核销已有卡密</h1>
           <p className="lede mt-3">
-            办理 ChatGPT、Grok 与 Codex。先核验卡密，再提交您自己的账号，需要时在本页完成银行验证。
+            商店负责下单，兑换台负责已购卡密。ChatGPT、Grok、Codex 可以兑换；Claude 与 Team 仍只识别。
           </p>
           <div className="tile-grid mt-5">
             {TILES.map((tile) => (

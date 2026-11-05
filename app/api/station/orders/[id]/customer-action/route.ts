@@ -17,7 +17,7 @@ function optionalText(value: unknown, max: number): string | undefined {
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   try {
-    limited(request, 20);
+    limited(request, 20, "redeem");
     const { id } = await context.params;
     const orderId = assertOrderId(id);
     const body = (await readJson(request, 12_000)) as Record<string, unknown>;

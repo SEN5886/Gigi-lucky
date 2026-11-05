@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   try {
-    limited(request, 60);
+    limited(request, 60, "redeem");
     let notice = "";
     if (apiConfigured()) {
       try {

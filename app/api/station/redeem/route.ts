@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
-    limited(request, 8);
+    limited(request, 8, "redeem");
     const body = (await readJson(request)) as { cdk?: unknown; sessionJson?: unknown };
     const cdk = assertCdk(body.cdk);
     const product = classifyCdk(cdk);
