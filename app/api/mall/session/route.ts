@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     limited(request, 60, "mall");
     const session = await ensureSession();
     return json({
-      user: session.userId && session.email ? { id: session.userId, email: session.email } : null,
+      user: session.userId ? { id: session.userId, email: session.email, phone: session.phone } : null,
       paymentMode: paymentMode(),
       authMode: devAuthEnabled() ? "dev" : "stub",
     });

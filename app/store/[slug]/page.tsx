@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = findProduct(slug);
-  if (!product) notFound();
+  if (!product || product.published === false) notFound();
   const sold = await soldMap();
   const left = availableStock(product, sold[product.id] ?? 0);
   const open = canPurchase(product, sold[product.id] ?? 0);
@@ -31,6 +31,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <span className="text-sm text-[var(--muted)]">{categoryLabels[product.category]}</span>
         <span className={open ? "badge" : "badge wait"}>{badgeLabel(product.badge, left)}</span>
       </div>
+      {product.images[0] ? <img className="max-h-64 w-full rounded-2xl object-cover" src={product.images[0]} alt="" /> : null}
       <h1 className="text-3xl font-bold">{product.title}</h1>
       <p className="price">{formatYuan(product.priceCents)}</p>
       <p className="lede">{product.description}</p>

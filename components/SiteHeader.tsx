@@ -4,18 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
+import type { SiteContent } from "@/lib/site-content";
 
-const LINKS = [
-  { href: "/store", label: "商店" },
-  { href: "/redeem", label: "兑换" },
-  { href: "/order", label: "订单" },
-  { href: "/cart", label: "购物车" },
-  { href: "/account/orders", label: "我的" },
-  { href: "/login", label: "登录" },
-  { href: "/faq", label: "问答" },
-];
-
-export function SiteHeader() {
+export function SiteHeader({ content }: { content: SiteContent }) {
+  const links = [
+    { href: "/store", label: content.nav.store },
+    { href: "/redeem", label: content.nav.redeem },
+    { href: "/order", label: content.nav.orders },
+    { href: "/cart", label: content.nav.cart },
+    { href: "/account/orders", label: content.nav.account },
+    { href: "/login", label: content.nav.login },
+    { href: "/faq", label: content.nav.faq },
+  ];
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(false);
@@ -42,7 +42,7 @@ export function SiteHeader() {
 
   return (
     <header>
-      <div className="topbar">Gigi Ai 商店与兑换台 · 请通过 HTTPS 访问正式站点</div>
+      <div className="topbar">{content.banner}</div>
       <div className="nav-float">
         <Logo />
         <div className="nav-tools">
@@ -61,7 +61,7 @@ export function SiteHeader() {
           </button>
         </div>
         <nav id="site-nav" className={open ? "nav-links open" : "nav-links"} aria-label="主导航">
-          {LINKS.map((link) => {
+          {links.map((link) => {
             const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
             return (
               <Link key={link.href} href={link.href} className="pill" data-active={active}>

@@ -386,6 +386,29 @@ html[data-theme="dark"] .alert.bad { color: #fecaca; }
 .qty { display: inline-flex; align-items: center; gap: 8px; }
 .qty button { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); }
 
+.cs-button {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 40;
+  min-width: 56px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--primary);
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.cs-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 72px;
+  z-index: 40;
+  width: min(320px, calc(100% - 32px));
+}
+
 @media (min-width: 720px) {
   .tile-grid,
   .product-grid { grid-template-columns: 1fr 1fr; }

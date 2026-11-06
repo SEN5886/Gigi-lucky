@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { paymentMode } from "@/lib/env";
-import { loadCatalog } from "@/lib/mall-catalog";
+import { publicCatalog } from "@/lib/mall-catalog";
 import { soldMap } from "@/lib/mall-db";
 import { availableStock, badgeLabel, canPurchase, categories, categoryLabels, formatYuan, type MallProduct } from "@/lib/mall-logic";
 
@@ -16,7 +16,7 @@ export default async function StorePage({ searchParams }: { searchParams: Promis
   const { category } = await searchParams;
   const selected = isCategory(category) ? category : "all";
   const sold = await soldMap();
-  const products = loadCatalog().filter((item) => selected === "all" || item.category === selected);
+  const products = publicCatalog().filter((item) => selected === "all" || item.category === selected);
 
   return (
     <div className="grid gap-4">

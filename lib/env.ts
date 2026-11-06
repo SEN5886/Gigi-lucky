@@ -3,7 +3,7 @@ import { z } from "zod";
 const schema = z.object({
   XIAOJIU_API_BASE_URL: z.string().url().default("https://982xj.xyz/api/partner/v1/xiaojiu"),
   PAYMENT_MODE: z.enum(["mock", "live"]).default("mock"),
-  AUTH_MODE: z.enum(["stub", "dev"]).default("stub"),
+  AUTH_MODE: z.enum(["stub", "dev", "mock", "otp"]).default("stub"),
   MALL_DATA_PATH: z.string().min(1).max(200).default(".data/mall.json"),
   PAYMENT_WEBHOOK_SECRET: z.string().max(200).optional(),
 });
@@ -25,6 +25,23 @@ export function paymentMode(): "mock" | "live" {
   return readEnv().PAYMENT_MODE;
 }
 
+export function authMode(): "stub" | "dev" | "mock" | "otp" {
+  const raw = process.env.AUTH_MODE;
+  if (raw === "otp" || raw === "mock" || raw === "dev" || raw === "stub") return raw;
+  return "stub";
+}
+
 export function devAuthEnabled(): boolean {
-  return process.env.NODE_ENV !== "production" && readEnv().AUTH_MODE === "dev";
+  return process.env.NODE_ENV !== "production" && authMode() === "dev";
+}
+
+export function otpDeliveryMode(): "stub" | "mock" | "otp" {
+  const mode = authMode();
+  if (mode === "otp") return "otp";
+  if (mode === "mock" || (mode === "dev" && process.env.NODE_ENV !== "production")) return "mock";
+  return "stub";
+}
+
+export function revealOtpCode(): boolean {
+  return process.env.NODE_ENV !== "production" && (authMode() === "mock" || authMode() === "dev");
 }

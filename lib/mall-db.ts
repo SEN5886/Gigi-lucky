@@ -1,6 +1,6 @@
 import "server-only";
 
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { cookies } from "next/headers";
@@ -24,15 +24,53 @@ export type MallOrder = {
 
 type IntentRecord = { orderId: string; status: "requires_confirmation" | "paid" | "failed" };
 
+export type ShopUser = {
+  id: string;
+  phone: string | null;
+  email: string | null;
+  createdAt: string;
+};
+
+export type OtpRecord = {
+  hash: string;
+  expiresAt: number;
+  attempts: number;
+  sentAt: number;
+};
+
+export type RedemptionRecord = {
+  id: string;
+  userId: string | null;
+  ownerSid: string;
+  orderId: string;
+  label: string;
+  maskedCode: string;
+  createdAt: string;
+};
+
 type Database = {
   sessions: Record<string, SessionRecord>;
   carts: Record<string, CartLine[]>;
   orders: Record<string, MallOrder>;
   sold: Record<string, number>;
   intents: Record<string, IntentRecord>;
+  users: Record<string, ShopUser>;
+  otps: Record<string, OtpRecord>;
+  redemptions: RedemptionRecord[];
+  adminSessions: Record<string, { id: string; expiresAt: number }>;
 };
 
-const empty = (): Database => ({ sessions: {}, carts: {}, orders: {}, sold: {}, intents: {} });
+const empty = (): Database => ({
+  sessions: {},
+  carts: {},
+  orders: {},
+  sold: {},
+  intents: {},
+  users: {},
+  otps: {},
+  redemptions: [],
+  adminSessions: {},
+});
 let chain: Promise<unknown> = Promise.resolve();
 
 function filePath(): string {
@@ -42,7 +80,14 @@ function filePath(): string {
 async function readDb(): Promise<Database> {
   try {
     const parsed = JSON.parse(await fs.readFile(filePath(), "utf8")) as Partial<Database>;
-    return { ...empty(), ...parsed };
+    return {
+      ...empty(),
+      ...parsed,
+      users: parsed.users ?? {},
+      otps: parsed.otps ?? {},
+      redemptions: parsed.redemptions ?? [],
+      adminSessions: parsed.adminSessions ?? {},
+    };
   } catch {
     return empty();
   }
@@ -84,12 +129,18 @@ export async function ensureSession(): Promise<SessionRecord> {
   const sid = jar.get(SID_COOKIE)?.value ?? "";
   const session = await mutate((db) => {
     const existing = sid ? db.sessions[sid] : undefined;
-    if (existing) return existing;
+    if (existing) {
+      existing.phone = existing.phone ?? null;
+      existing.email = existing.email ?? null;
+      existing.userId = existing.userId ?? null;
+      return existing;
+    }
     const created: SessionRecord = {
       id: randomBytes(16).toString("hex"),
       csrf: randomBytes(16).toString("hex"),
       userId: null,
       email: null,
+      phone: null,
       createdAt: new Date().toISOString(),
     };
     db.sessions[created.id] = created;
@@ -199,4 +250,115 @@ export function newOrderId(): string {
 
 export function newIntentId(): string {
   return `mock_${randomBytes(8).toString("hex")}`;
+}
+
+export async function readOtp(key: string): Promise<OtpRecord | null> {
+  return mutate((db) => db.otps[key] ?? null);
+}
+
+export async function saveOtp(key: string, record: OtpRecord) {
+  await mutate((db) => {
+    db.otps[key] = record;
+  });
+}
+
+export async function clearOtp(key: string) {
+  await mutate((db) => {
+    delete db.otps[key];
+  });
+}
+
+export async function failOtp(key: string): Promise<number> {
+  return mutate((db) => {
+    const row = db.otps[key];
+    if (!row) return 0;
+    row.attempts += 1;
+    if (row.attempts >= 5) delete db.otps[key];
+    return row.attempts;
+  });
+}
+
+export async function loginWithIdentity(sid: string, identity: { phone: string | null; email: string | null }) {
+  const result = await mutate((db) => {
+    const key = identity.phone ? `p:${identity.phone}` : `e:${identity.email ?? ""}`;
+    let user = Object.values(db.users).find((item) => (identity.phone && item.phone === identity.phone) || (identity.email && item.email === identity.email));
+    if (!user) {
+      user = {
+        id: `user_${createHash("sha256").update(key).digest("hex").slice(0, 16)}`,
+        phone: identity.phone,
+        email: identity.email,
+        createdAt: new Date().toISOString(),
+      };
+      db.users[user.id] = user;
+    } else {
+      if (identity.phone) user.phone = identity.phone;
+      if (identity.email) user.email = identity.email;
+    }
+    const session = db.sessions[sid];
+    if (session) {
+      session.userId = user.id;
+      session.phone = user.phone;
+      session.email = user.email;
+    }
+    let attached = 0;
+    for (const order of Object.values(db.orders)) {
+      if (order.ownerSid === sid && order.userId !== user.id) {
+        order.userId = user.id;
+        attached += 1;
+      }
+    }
+    for (const row of db.redemptions) {
+      if (row.ownerSid === sid && row.userId !== user.id) {
+        row.userId = user.id;
+        attached += 1;
+      }
+    }
+    return { user, session: session ?? null, attached };
+  });
+  if (result.session) await persistSession(result.session);
+  return result;
+}
+
+export async function recordRedemption(input: Omit<RedemptionRecord, "id" | "createdAt">) {
+  await mutate((db) => {
+    db.redemptions.push({
+      ...input,
+      id: `r${randomBytes(6).toString("hex")}`,
+      createdAt: new Date().toISOString(),
+    });
+  });
+}
+
+export async function listRedemptions(session: SessionRecord): Promise<{ account: RedemptionRecord[]; browser: RedemptionRecord[] }> {
+  return mutate((db) => ({
+    account: session.userId ? db.redemptions.filter((row) => row.userId === session.userId) : [],
+    browser: db.redemptions.filter((row) => row.ownerSid === session.id),
+  }));
+}
+
+export async function createAdminSession(): Promise<string> {
+  const id = randomBytes(16).toString("hex");
+  const expiresAt = Date.now() + 12 * 60 * 60 * 1000;
+  await mutate((db) => {
+    db.adminSessions[id] = { id, expiresAt };
+  });
+  return id;
+}
+
+export async function adminSessionValid(id: string): Promise<boolean> {
+  if (!/^[a-f0-9]{32}$/.test(id)) return false;
+  return mutate((db) => {
+    const row = db.adminSessions[id];
+    if (!row || row.expiresAt < Date.now()) {
+      if (row) delete db.adminSessions[id];
+      return false;
+    }
+    return true;
+  });
+}
+
+export async function dropAdminSession(id: string) {
+  await mutate((db) => {
+    delete db.adminSessions[id];
+  });
 }

@@ -1,5 +1,6 @@
 import { classifyCdk } from "@/lib/products";
 import { assertCdk, json, jsonError, limited, readJson } from "@/lib/http";
+import { ensureSession, recordRedemption } from "@/lib/mall-db";
 import { normalizeRedeem } from "@/lib/normalize";
 import { PartnerError, redeemCdk } from "@/lib/partner";
 import { rememberBinding } from "@/lib/store";
@@ -21,7 +22,18 @@ export async function POST(request: Request) {
     }
     const raw = await redeemCdk(cdk, body.sessionJson);
     const redeem = normalizeRedeem(raw);
-    if (redeem.orderId) await rememberBinding(cdk, redeem.orderId, product.id);
+    if (redeem.orderId) {
+      await rememberBinding(cdk, redeem.orderId, product.id);
+      const session = await ensureSession();
+      const masked = cdk.length > 12 ? `${cdk.slice(0, 8)}…${cdk.slice(-4)}` : "已隐藏";
+      await recordRedemption({
+        userId: session.userId,
+        ownerSid: session.id,
+        orderId: redeem.orderId,
+        label: product.tierLabel,
+        maskedCode: masked,
+      });
+    }
     return json({ redeem });
   } catch (error) {
     return jsonError(error);

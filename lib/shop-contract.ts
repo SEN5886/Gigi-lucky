@@ -17,11 +17,14 @@ export const CSRF_COOKIE_POLICY = {
   maxAge: 60 * 60 * 24 * 30,
 };
 
+export const ADMIN_COOKIE = "gigi_admin";
+
 export type SessionRecord = {
   id: string;
   csrf: string;
   userId: string | null;
   email: string | null;
+  phone: string | null;
   createdAt: string;
 };
 

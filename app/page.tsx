@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { OFFERINGS } from "@/lib/catalog";
+import { readContent } from "@/lib/site-content";
 
 const TILES = [
   { title: "卡密核验", copy: "认出卡种，并确认这张卡还能不能办理。" },
@@ -9,6 +10,7 @@ const TILES = [
 ];
 
 export default function HomePage() {
+  const content = readContent();
   return (
     <div className="grid gap-4">
       <section className="home-grid">
@@ -21,7 +23,7 @@ export default function HomePage() {
             </span>
           </div>
           <h2>Gigi Ai</h2>
-          <p className="lede mt-2 text-sm">先在商店选购，或在兑换台核销已有卡密。一张订单对应一次清楚的结果。</p>
+          <p className="lede mt-2 text-sm">{content.brandBlurb}</p>
           <div className="actions mt-4 justify-center">
             <Link className="btn-primary" href="/store">
               进入商店
@@ -32,10 +34,8 @@ export default function HomePage() {
           </div>
         </aside>
         <div className="card card-pad">
-          <h1 className="text-[28px] font-bold leading-tight sm:text-4xl">选购数字商品，或核销已有卡密</h1>
-          <p className="lede mt-3">
-            商店负责下单，兑换台负责已购卡密。ChatGPT、Grok、Codex 可以兑换；Claude 与 Team 仍只识别。
-          </p>
+          <h1 className="text-[28px] font-bold leading-tight sm:text-4xl">{content.heroTitle}</h1>
+          <p className="lede mt-3">{content.heroBody}</p>
           <div className="tile-grid mt-5">
             {TILES.map((tile) => (
               <article key={tile.title} className="tile">

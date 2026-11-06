@@ -1,5 +1,5 @@
 import { json, jsonError, limited } from "@/lib/http";
-import { ensureSession, listBrowserOrders, listOrdersFor } from "@/lib/mall-db";
+import { ensureSession, listBrowserOrders, listOrdersFor, listRedemptions } from "@/lib/mall-db";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,10 +22,12 @@ export async function GET(request: Request) {
     const session = await ensureSession();
     const account = session.userId ? await listOrdersFor(session) : [];
     const browser = await listBrowserOrders(session.id);
+    const redemptions = await listRedemptions(session);
     return json({
       signedIn: Boolean(session.userId),
       account: account.map(view),
       browser: browser.map(view),
+      redemptions,
     });
   } catch (error) {
     return jsonError(error);

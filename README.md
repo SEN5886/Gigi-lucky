@@ -52,15 +52,21 @@ npm run dev
 
 目录数据在 `data/catalog.json`。单价和库存以这份文件为准，浏览器不能改价。
 
-## 账户与支付接口
+## 账户、后台与支付
 
-账户与支付都先留接口，不接真实服务商。
+账户和支付都先留接口。手机短信和邮箱验证码有 `OtpSender`，目前只有 `mock` 和 `unwired` 两种实现，不会请求阿里云或腾讯云。`.env.example` 里的云密钥是接通时再用的占位。
 
-- `AuthProvider`：`login`、`register`、`requestMagicLink`
-- `PaymentProvider`：`createIntent`、`confirm`
-- 路由见 `docs/SECURITY.md`
+- `AUTH_MODE=stub`：发送接口直接说明尚未启用。
+- `AUTH_MODE=mock`，或非生产环境的 `dev`：本地生成 6 位验证码，5 分钟过期，60 秒内不能重发，错 5 次作废。验证码只存哈希。非生产环境的响应会带上 `devCode`，方便联调。
+- `AUTH_MODE=otp`：走正式发送接口，但实现仍会返回「尚未接通」，不会发出短信或邮件。
+- 验证通过后建立账户，并把这台浏览器上尚未归属的商城订单和兑换记录记到该账户。消费记录在 `/account/orders`。
+- 后台地址是 `/admin`，口令为 `ADMIN_TOKEN`。可以改商品（名称、标识、价格、图片、分类、库存、上下架）和用户端文案（顶栏、首页、导航、页脚、售后、客服浮窗）。
+- 商品写在 `CATALOG_DATA_PATH`，文案写在 `CONTENT_DATA_PATH`。第一次读取会从 `data/catalog.json` 复制出可编辑副本。
+- `PaymentProvider` 仍是 `createIntent` / `confirm`。`PAYMENT_MODE=mock` 只在本地完成订单。
 
-下一步支付接入的顺序是 Stripe、支付宝、微信支付。实现对应的 `PaymentProvider`，密钥只放服务端。不要在模拟支付已开启时向顾客展示「已真实扣款」。
+下一步支付接入的顺序是 Stripe、支付宝、微信支付。密钥只放服务端。
+
+界面结构参考了 [Your Next Store](https://github.com/yournextstore/yournextstore)（MIT）的商品 slug 页、购物车数量和结算摘要，以及 [Medusa](https://github.com/medusajs/medusa)（核心 MIT）后台里「已发布才在店面可买、图片用 URL、handle 作为标识」的商品字段。没有把这两个项目整份搬进来。
 
 ## 与合作方的对应关系
 

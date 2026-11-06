@@ -13,6 +13,7 @@ export async function POST(request: Request) {
       ...session,
       userId: null,
       email: null,
+      phone: null,
       csrf: randomBytes(16).toString("hex"),
     });
     return json({ ok: true, message: "已退出本机会话。" });

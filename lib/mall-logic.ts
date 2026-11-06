@@ -17,10 +17,12 @@ export const productSchema = z.object({
   title: z.string().min(1).max(80),
   category: z.enum(categories),
   summary: z.string().min(1).max(180),
-  description: z.string().min(1).max(600),
+  description: z.string().min(1).max(2000),
   priceCents: z.number().int().min(0).max(5_000_000),
   stock: z.number().int().min(0).max(100_000),
   badge: z.enum(["in_stock", "low", "restocking", "soon"]),
+  images: z.array(z.string().max(300).refine((value) => value.startsWith("https://") || value.startsWith("/"))).max(8).default([]),
+  published: z.boolean().default(true),
 });
 
 export type MallProduct = z.infer<typeof productSchema>;
@@ -67,7 +69,7 @@ export function availableStock(product: MallProduct, sold: number): number {
 }
 
 export function canPurchase(product: MallProduct, sold: number): boolean {
-  return product.badge !== "soon" && product.priceCents > 0 && availableStock(product, sold) > 0;
+  return product.published !== false && product.badge !== "soon" && product.priceCents > 0 && availableStock(product, sold) > 0;
 }
 
 export function badgeLabel(badge: MallProduct["badge"], left: number): string {
