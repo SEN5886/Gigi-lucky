@@ -73,6 +73,9 @@ export function SiteChrome({ content, children }: { content: SiteContent; childr
   if (pathname.startsWith("/store-v2")) {
     return <StoreV2Chrome content={content}>{children}</StoreV2Chrome>;
   }
+  if (pathname.startsWith("/admin")) {
+    return <main id="content" className="admin-frame">{children}</main>;
+  }
   return (
     <>
       <SiteHeader content={content} />

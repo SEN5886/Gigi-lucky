@@ -29,6 +29,7 @@ export type ShopUser = {
   phone: string | null;
   email: string | null;
   createdAt: string;
+  note: string;
 };
 
 export type OtpRecord = {
@@ -288,6 +289,7 @@ export async function loginWithIdentity(sid: string, identity: { phone: string |
         phone: identity.phone,
         email: identity.email,
         createdAt: new Date().toISOString(),
+        note: "",
       };
       db.users[user.id] = user;
     } else {
@@ -361,4 +363,36 @@ export async function dropAdminSession(id: string) {
   await mutate((db) => {
     delete db.adminSessions[id];
   });
+}
+
+function copyUser(user: ShopUser): ShopUser {
+  return { ...user, note: typeof user.note === "string" ? user.note : "" };
+}
+
+export async function listShopUsers(): Promise<ShopUser[]> {
+  return mutate((db) => Object.values(db.users).map(copyUser));
+}
+
+export async function getShopUser(id: string): Promise<ShopUser | null> {
+  return mutate((db) => {
+    const user = db.users[id];
+    return user ? copyUser(user) : null;
+  });
+}
+
+export async function saveUserNote(id: string, note: string): Promise<ShopUser | null> {
+  return mutate((db) => {
+    const user = db.users[id];
+    if (!user) return null;
+    user.note = note;
+    return copyUser(user);
+  });
+}
+
+export async function listAllOrders(): Promise<MallOrder[]> {
+  return mutate((db) => Object.values(db.orders).map((order) => ({ ...order, items: order.items.map((item) => ({ ...item })) })));
+}
+
+export async function listAllRedemptions(): Promise<RedemptionRecord[]> {
+  return mutate((db) => db.redemptions.map((row) => ({ ...row })));
 }
