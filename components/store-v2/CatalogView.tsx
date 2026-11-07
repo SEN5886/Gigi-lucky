@@ -44,9 +44,13 @@ export function CatalogView({
             return (
               <article key={product.id} className="shop-card card">
                 <Link href={`/store-v2/${product.slug}`}>
-                  <div className={`cover cover-${coverClass(product.category)}`} aria-hidden>
-                    <span>{product.title.slice(0, 1)}</span>
-                  </div>
+                  {product.images[0] ? (
+                    <img className="v2-card-photo" src={product.images[0]} alt="" />
+                  ) : (
+                    <div className={`cover cover-${coverClass(product.category)}`} aria-hidden>
+                      <span>{product.title.slice(0, 1)}</span>
+                    </div>
+                  )}
                 </Link>
                 <div className="shop-body">
                   <div className="product-top">

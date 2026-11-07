@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCart } from "@/components/AddToCart";
+import { ProductGallery } from "@/components/store-v2/ProductGallery";
 import { findProduct } from "@/lib/mall-catalog";
 import { soldMap } from "@/lib/mall-db";
 import { availableStock, badgeLabel, canPurchase, categoryLabels, formatYuan } from "@/lib/mall-logic";
@@ -32,8 +33,8 @@ export default async function StoreV2ProductPage({ params }: { params: Promise<{
         <Link className="text-sm font-medium text-primary" href="/store-v2">
           返回 AI商城
         </Link>
-        {product.images[0] ? (
-          <img className="max-h-80 w-full rounded-[18px] object-cover" src={product.images[0]} alt="" />
+        {product.images.length ? (
+          <ProductGallery images={product.images} title={product.title} />
         ) : (
           <div className={`cover cover-lg cover-${coverClass(product.category)}`} aria-hidden>
             <span>{product.title.slice(0, 1)}</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { ProductImages } from "@/components/ProductImages";
 import { getJson, postJson } from "@/lib/browser";
 import type { MallProduct } from "@/lib/mall-logic";
 import type { SiteContent } from "@/lib/site-content";
@@ -27,7 +28,8 @@ export function AdminConsole() {
   const [draft, setDraft] = useState<MallProduct>(emptyProduct());
   const [previousId, setPreviousId] = useState("");
   const [content, setContent] = useState<SiteContent | null>(null);
-  const [images, setImages] = useState("");
+  const [images, setImages] = useState<string[]>([]);
+  const [panel, setPanel] = useState<"products" | "content">("products");
 
   async function load() {
     const session = await getJson<{ ok: boolean }>("/api/admin/session");
@@ -60,7 +62,7 @@ export function AdminConsole() {
   function edit(product: MallProduct) {
     setDraft(product);
     setPreviousId(product.id);
-    setImages(product.images.join("\n"));
+    setImages(product.images);
   }
 
   async function saveProduct(event: FormEvent) {
@@ -70,7 +72,7 @@ export function AdminConsole() {
       id: draft.slug,
       priceCents: Math.round(Number(draft.priceCents)),
       stock: Math.round(Number(draft.stock)),
-      images: images.split("\n").map((line) => line.trim()).filter(Boolean),
+      images,
     };
     try {
       const payload = await postJson<{ products: MallProduct[] }>("/api/admin/products", { product, previousId: previousId || product.id });
@@ -110,15 +112,26 @@ export function AdminConsole() {
   }
 
   return (
-    <div className="grid gap-6">
-      <div className="row-between">
-        <h1 className="text-3xl font-bold">后台</h1>
-        <button className="btn-ghost" type="button" onClick={() => void postJson("/api/admin/logout").then(() => setReady(false))}>
-          退出
-        </button>
-      </div>
+    <div className="admin-shell">
+      <aside className="admin-nav">
+        <p className="font-semibold">Gigi Ai</p>
+        <button type="button" data-active={panel === "products"} onClick={() => setPanel("products")}>商品</button>
+        <button type="button" data-active={panel === "content"} onClick={() => setPanel("content")}>页面文案</button>
+        <p className="mt-4 text-xs">尚未开通，没有可打开的页面</p>
+        <ul className="admin-gaps">
+          <li>SKU</li>
+          <li>卡密库存</li>
+          <li>退款</li>
+          <li>工单</li>
+          <li>用户</li>
+          <li>日志</li>
+          <li>发票</li>
+        </ul>
+        <button type="button" onClick={() => void postJson("/api/admin/logout").then(() => setReady(false))}>退出</button>
+      </aside>
+      <div className="admin-work grid gap-4">
       {message ? <p className="alert" role="status">{message}</p> : null}
-      <section className="grid gap-3">
+      {panel === "products" ? <section className="grid gap-3">
         <h2 className="text-xl font-semibold">商品</h2>
         <div className="grid gap-2">
           {products.map((product) => (
@@ -129,7 +142,7 @@ export function AdminConsole() {
           ))}
         </div>
         <form className="grid gap-3" onSubmit={saveProduct}>
-          <button className="btn-ghost w-fit" type="button" onClick={() => { setDraft(emptyProduct()); setPreviousId(""); setImages(""); }}>
+          <button className="btn-ghost w-fit" type="button" onClick={() => { setDraft(emptyProduct()); setPreviousId(""); setImages([]); }}>
             新建商品
           </button>
           <label className="grid gap-1 text-sm">名称<input className="field" value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} /></label>
@@ -157,15 +170,15 @@ export function AdminConsole() {
           </label>
           <label className="grid gap-1 text-sm">简介<textarea className="field" value={draft.summary} onChange={(event) => setDraft({ ...draft, summary: event.target.value })} /></label>
           <label className="grid gap-1 text-sm">详情<textarea className="field" value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} /></label>
-          <label className="grid gap-1 text-sm">图片地址，每行一个 https 或站内路径<textarea className="field" value={images} onChange={(event) => setImages(event.target.value)} /></label>
+          <ProductImages images={images} onChange={setImages} />
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={draft.published} onChange={(event) => setDraft({ ...draft, published: event.target.checked })} />
             在商店展示
           </label>
           <button className="btn-primary w-fit" type="submit">保存商品</button>
         </form>
-      </section>
-      {content ? (
+      </section> : null}
+      {panel === "content" && content ? (
         <form className="grid gap-3" onSubmit={saveContent}>
           <h2 className="text-xl font-semibold">页面文案与客服</h2>
           <label className="grid gap-1 text-sm">顶栏<input className="field" value={content.banner} onChange={(event) => setContent({ ...content, banner: event.target.value })} /></label>
@@ -199,6 +212,7 @@ export function AdminConsole() {
           <button className="btn-primary w-fit" type="submit">保存文案</button>
         </form>
       ) : null}
+      </div>
     </div>
   );
 }

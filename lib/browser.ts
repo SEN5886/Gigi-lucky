@@ -46,6 +46,30 @@ export async function postJson<T>(url: string, body?: unknown): Promise<T> {
   return parse<T>(response);
 }
 
+export async function postForm<T>(url: string, body: FormData): Promise<T> {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { Accept: "application/json", "x-csrf-token": await csrfToken() },
+    body,
+    cache: "no-store",
+  });
+  return parse<T>(response);
+}
+
+export async function deleteJson<T>(url: string, body?: unknown): Promise<T> {
+  const response = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "x-csrf-token": await csrfToken(),
+    },
+    body: JSON.stringify(body ?? {}),
+    cache: "no-store",
+  });
+  return parse<T>(response);
+}
+
 export async function getJson<T>(url: string): Promise<T> {
   const response = await fetch(url, { cache: "no-store", headers: { Accept: "application/json" } });
   return parse<T>(response);
