@@ -1,0 +1,112 @@
+[
+  {
+    "id": "chatgpt-plus",
+    "slug": "chatgpt-plus",
+    "title": "ChatGPT Plus 月卡",
+    "category": "chatgpt",
+    "summary": "一个月的 Plus 档位数字商品，支付确认后在订单里查看发放说明。",
+    "description": "适合个人使用的 ChatGPT Plus 月卡。这是演示目录中的标价与库存，接入真实支付前不会扣款，也不会自动开通账号。",
+    "priceCents": 16800,
+    "stock": 24,
+    "badge": "in_stock"
+  },
+  {
+    "id": "chatgpt-go",
+    "slug": "chatgpt-go",
+    "title": "ChatGPT Go 月卡",
+    "category": "chatgpt",
+    "summary": "入门档位月卡，结算时以服务端标价为准。",
+    "description": "ChatGPT Go 月卡。数量可在购物车里调整。缺货时无法加入购物车。",
+    "priceCents": 4800,
+    "stock": 16,
+    "badge": "in_stock"
+  },
+  {
+    "id": "chatgpt-pro",
+    "slug": "chatgpt-pro",
+    "title": "ChatGPT Pro 月卡",
+    "category": "chatgpt",
+    "summary": "高档位月卡，库存较少时会显示库存紧张。",
+    "description": "ChatGPT Pro 月卡。演示库存有限，用于检查结算时的库存校验。",
+    "priceCents": 128800,
+    "stock": 4,
+    "badge": "low"
+  },
+  {
+    "id": "grok-monthly",
+    "slug": "grok-monthly",
+    "title": "Grok 月付",
+    "category": "grok",
+    "summary": "Grok 月付数字商品，订单与兑换台互相独立。",
+    "description": "购买成功只生成商城订单。若您已有卡密，请走兑换台，不必再次下单。",
+    "priceCents": 5800,
+    "stock": 18,
+    "badge": "in_stock"
+  },
+  {
+    "id": "grok-yearly",
+    "slug": "grok-yearly",
+    "title": "Grok 年付",
+    "category": "grok",
+    "summary": "按年计的 Grok 档位，标价在演示目录中固定。",
+    "description": "年付商品同样只在模拟支付下完成本地订单。真实扣款需要后续接入支付渠道。",
+    "priceCents": 49800,
+    "stock": 7,
+    "badge": "in_stock"
+  },
+  {
+    "id": "claude-pro",
+    "slug": "claude-pro",
+    "title": "Claude Pro 月卡",
+    "category": "claude",
+    "summary": "演示条目。当前库存为零，不能加入购物车。",
+    "description": "Claude 兑换通道也尚未开放。此商品保留在目录里，方便以后补货，现在不能结算。",
+    "priceCents": 16800,
+    "stock": 0,
+    "badge": "restocking"
+  },
+  {
+    "id": "claude-max",
+    "slug": "claude-max",
+    "title": "Claude Max 月卡",
+    "category": "claude",
+    "summary": "尚未上架的高档位，只可浏览。",
+    "description": "即将上架。页面可以打开，购买按钮保持关闭。",
+    "priceCents": 85800,
+    "stock": 0,
+    "badge": "soon"
+  },
+  {
+    "id": "codex-250",
+    "slug": "codex-250",
+    "title": "Codex Credits 250",
+    "category": "codex",
+    "summary": "较小额度的 Codex 点数商品。",
+    "description": "点数类数字商品。发放说明写在已支付订单中，演示模式不会真的入账。",
+    "priceCents": 8800,
+    "stock": 20,
+    "badge": "in_stock"
+  },
+  {
+    "id": "codex-1000",
+    "slug": "codex-1000",
+    "title": "Codex Credits 1000",
+    "category": "codex",
+    "summary": "较大额度的 Codex 点数商品。",
+    "description": "结算金额由服务端按目录单价乘以数量计算，浏览器不能改价。",
+    "priceCents": 26800,
+    "stock": 9,
+    "badge": "in_stock"
+  },
+  {
+    "id": "gift-note",
+    "slug": "gift-note",
+    "title": "兑换须知（电子说明）",
+    "category": "other",
+    "summary": "其他分类中的说明类商品，当前不售卖。",
+    "description": "用来占住「其他」分类。正式说明见问答与售后页面，这里不单独收费。",
+    "priceCents": 0,
+    "stock": 0,
+    "badge": "soon"
+  }
+]
