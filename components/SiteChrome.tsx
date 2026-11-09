@@ -15,12 +15,13 @@ const V2_LINKS = [
   { href: "/redeem", label: "兑换中心" },
   { href: "/order", label: "订单查询" },
   { href: "/faq", label: "教程帮助" },
-  { href: "/account/orders", label: "账户" },
+  { href: "/store-v2/account", label: "账户" },
   { href: "/cart", label: "购物车" },
 ];
 
 function active(pathname: string, href: string) {
   if (href === "/") return pathname === "/";
+  if (href === "/store-v2") return pathname === "/store-v2" || (pathname.startsWith("/store-v2/") && !pathname.startsWith("/store-v2/account"));
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -63,7 +64,7 @@ function StoreV2Chrome({ content, children }: { content: SiteContent; children: 
         </p>
         <p>运营主体和备案号尚未写入站点配置，本预览不展示备案信息。</p>
       </footer>
-      <ServiceWidget service={content.service} />
+      <ServiceWidget service={content.service} support={content.support} />
     </>
   );
 }

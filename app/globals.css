@@ -434,8 +434,12 @@ html[data-theme="dark"] .alert.bad { color: #fecaca; }
   right: 16px;
   bottom: 72px;
   z-index: 40;
-  width: min(320px, calc(100% - 32px));
+  width: min(320px, calc(100vw - 32px));
+  max-height: min(70vh, 480px);
+  overflow: auto;
 }
+.cs-panel .btn-primary,
+.cs-panel .btn-ghost { max-width: 100%; }
 
 .v2-bar { background: #0f172a; color: #e2e8f0; }
 .v2-bar-inner {

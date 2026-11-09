@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { postJson } from "@/lib/browser";
 
-export function OtpForm() {
+export function OtpForm({ next = "/account/orders", onSuccess }: { next?: string; onSuccess?: () => void }) {
   const router = useRouter();
   const [channel, setChannel] = useState<"phone" | "email">("phone");
   const [target, setTarget] = useState("");
@@ -31,11 +31,15 @@ export function OtpForm() {
     event.preventDefault();
     setPending(true);
     try {
-      const payload = await postJson<{ message: string }>("/api/auth/otp/verify", { channel, target, code });
+      const payload = await postJson<{ ok?: boolean; message: string }>("/api/auth/otp/verify", { channel, target, code });
       setMessage(payload.message);
-      router.push("/account/orders");
+      if (payload.ok) {
+        if (onSuccess) onSuccess();
+        else router.push(next);
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "没有登录成功。");
+    } finally {
       setPending(false);
     }
   }

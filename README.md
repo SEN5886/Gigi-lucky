@@ -42,7 +42,7 @@ npm run dev
 - `/cart` 购物车：改数量、移除
 - `/checkout` 客人也可结算；`PAYMENT_MODE=mock` 时本地完成订单
 - `/checkout/success` 订单回执，只对下单的浏览器或同一登录用户可见
-- `/account/orders` 登录用户的订单列表壳，以及本机订单
+- `/account/orders` 登录用户的订单列表，以及本机订单。商店预览里的同一份记录在 `/store-v2/account`
 - `/login`、`/register` 登录与注册界面，调用尚未接入的账户接口
 - `/redeem` 兑换：核验卡密、填写登录信息、提交
 - `/order` 用卡密找回兑换进度
